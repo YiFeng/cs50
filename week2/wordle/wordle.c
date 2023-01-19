@@ -35,7 +35,8 @@ int main(int argc, string argv[])
     int wordsize = 0;
 
     // ensure argv[1] is either 5, 6, 7, or 8 and store that value in wordsize instead
-    int size = argv[1][0] - '0';
+    string len_user_input = argv[1]; //use atoi function
+    int size = len_user_input[0] - '0';
     if (size > 4 && size < 9)
     {
         wordsize = size;
@@ -123,14 +124,14 @@ int main(int argc, string argv[])
 
 string get_guess(int wordsize)
 {
-    string guess = "";
+    string guess = NULL;
 
     // ensure users actually provide a guess that is the correct length
     do
     {
-        guess = get_string("Input a 5-letter word: ");
+        guess = get_string("Input a %i-letter word: ", wordsize);
     }
-    while (strlen(guess)!= 5);
+    while (strlen(guess)!= wordsize);
 
     return guess;
 }
@@ -146,15 +147,13 @@ int check_word(string guess, int wordsize, int status[], string choice)
         {
             if (guess[i] == choice[i])
             {
-                status[i] = 2;
-                score += 2;
+                score += status[i] = EXACT;
                 break;
             }
 
             if (guess[i] == choice[j])
             {
-                status[i] = 1;
-                score += 1;
+                score += status[i] = CLOSE;
             }
         }
 
@@ -176,7 +175,7 @@ void print_word(string guess, int wordsize, int status[])
     // print word character-for-character with correct color coding, then reset terminal font to normal
     for (int i = 0; i < wordsize; i++)
     {
-        string color = "";
+        string color = NULL;
         if (status[i]==WRONG)
         {
             color = RED;
