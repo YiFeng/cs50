@@ -5,6 +5,7 @@
 #include <string.h>
 
 int convert(string input);
+bool check_is_number(string input);
 
 int main(void)
 {
@@ -25,7 +26,12 @@ int main(void)
 
 int convert(string input)
 {
-    // TODO
-    int last_char_index = strlen(input) - 1;
-    
+    int target_digit = input[0] - '0';
+    if (strlen(input) == 1)
+    {
+        return target_digit;
+    }
+    int target_decimal_num = strlen(input) - 1;
+    int result = convert(input+1) + target_digit * (pow(10,target_decimal_num));
+    return result;
 }
