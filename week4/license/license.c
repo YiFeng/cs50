@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     printf("the adress of buffer: %p\n", &buffer);
 
     // Create array to store plate numbers
-    char *plates[8];
+    char *plates[8]; //what happend in computer memory when you declare this line?
 
     printf("the adress of plates: %p\n", plates);
     printf("the adress of plates: %p\n", plates+1);
