@@ -26,10 +26,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    // Count how many jpg files it has
+
     // Read blocks of input
-    int i = 0;
+    int num_jpg = 0;
     char file_name[8];
-    FILE *output[50];
+    FILE *output;
     BYTE buffer[BLOCK_SIZE];
 
     while (fread(buffer, sizeof(buffer), 1, input) == 1)
@@ -37,26 +39,25 @@ int main(int argc, char *argv[])
         // Check first 4 bytes in each block
         if (is_jpg_sig(buffer))
         {
-            if (i > 0)
+            if (num_jpg > 0)
             {
-                fclose(output[i-1]);
-                free(output[i-1]);
+                fclose(output);
             }
-            sprintf(file_name, "%03d.jpg", i);
-            output[i] = fopen(file_name, "w");
-            output[i] = malloc(sizeof(buffer));
-            fwrite(buffer, sizeof(buffer), 1, output[i]);
-            i++;
+            sprintf(file_name, "%03d.jpg", num_jpg);
+            output = fopen(file_name, "w");
+            fwrite(buffer, sizeof(buffer), 1, output);
+            num_jpg++;
         }
         else
         {
-            output[i-1] = malloc(sizeof(buffer));
-            fwrite(buffer, sizeof(buffer), 1, output[i-1]);
+            if (num_jpg > 0)
+            {
+                fwrite(buffer, sizeof(buffer), 1, output);
+            }
         }
     }
     fclose(input);
-    fclose(output[i-1]);
-    free(output[i-1]);
+    fclose(output);
 }
 
 bool is_jpg_sig(BYTE buffer[])
