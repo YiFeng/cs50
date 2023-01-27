@@ -40,9 +40,11 @@ int main(int argc, char *argv[])
             if (i > 0)
             {
                 fclose(output[i-1]);
+                free(output[i-1]);
             }
             sprintf(file_name, "%03d.jpg", i);
             output[i] = fopen(file_name, "w");
+            output[i] = malloc(sizeof(buffer));
             fwrite(buffer, sizeof(buffer), 1, output[i]);
             i++;
         }
@@ -53,6 +55,8 @@ int main(int argc, char *argv[])
         }
     }
     fclose(input);
+    fclose(output[i-1]);
+    free(output[i-1]);
 }
 
 bool is_jpg_sig(BYTE buffer[])
