@@ -62,9 +62,5 @@ int main(int argc, char *argv[])
 
 bool is_jpg_sig(BYTE buffer[])
 {
-    if ((buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) && (buffer[3] >= 0xe0 && buffer[3] <= 0xef))
-    {
-        return true;
-    }
-    return false;
+    return (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) && (buffer[3] >= 0xe0 && buffer[3] <= 0xef);
 }
