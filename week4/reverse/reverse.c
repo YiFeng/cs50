@@ -38,6 +38,7 @@ int main(int argc, char *argv[])
     if (!check_format(header))
     {
         printf("Input is not a WAV file.\n");
+        return 1;
     }
 
     // Open output file for writing
@@ -85,6 +86,7 @@ void reverse_wav(FILE *input, FILE *output, int block_size)
         fseek(input, -1 * block_size, SEEK_CUR);
         fread(buffer, sizeof(buffer), 1, input);
         fwrite(buffer, sizeof(buffer), 1, output);
+        fseek(input, -1 * block_size, SEEK_CUR);
     }
 
 }
