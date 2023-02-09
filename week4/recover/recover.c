@@ -29,9 +29,9 @@ int main(int argc, char *argv[])
     // Count how many jpg files it has
 
     // Read blocks of input
-    int *num_jpg = NULL;
+    int num_jpg = 0;
     char file_name[8];
-    FILE *output;
+    FILE *output = NULL;
     BYTE buffer[BLOCK_SIZE];
 
     while (fread(buffer, sizeof(buffer), 1, input) == 1)
@@ -39,18 +39,18 @@ int main(int argc, char *argv[])
         // Check first 4 bytes in each block
         if (is_jpg_sig(buffer))
         {
-            if (num_jpg != NULL)
+            if (output != NULL)
             {
                 fclose(output);
             }
-            sprintf(file_name, "%03d.jpg", *num_jpg);
+            sprintf(file_name, "%03d.jpg", num_jpg);
             output = fopen(file_name, "w");
             fwrite(buffer, sizeof(buffer), 1, output);
-            *num_jpg = *num_jpg+1;
+            num_jpg++;
         }
         else
         {
-            if (num_jpg != NULL)
+            if (output != NULL)
             {
                 fwrite(buffer, sizeof(buffer), 1, output);
             }
