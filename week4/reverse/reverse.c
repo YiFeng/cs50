@@ -6,12 +6,11 @@
 #include "wav.h"
 
 typedef uint8_t BYTE;
-int HEADER_SIZE = 44;
+int HEADER_SIZE = sizeof(WAVHEADER);
 
-bool check_format(WAVHEADER header);
-int get_block_size(WAVHEADER header);
-WAVHEADER read_header(FILE *input);
-void reverse_wav(FILE *input, FILE *output);
+bool check_format(WAVHEADER *header);
+int get_block_size(WAVHEADER *header);
+void reverse_wav(FILE *input, FILE *output, int block_size);
 
 int main(int argc, char *argv[])
 {
@@ -32,10 +31,11 @@ int main(int argc, char *argv[])
 
     // Read header into an array
     // Create an array to save header info
-    WAVHEADER header = read_header(FILE *input);
+    WAVHEADER *header = malloc(sizeof(WAVHEADER));
+    fread(header, sizeof(WAVHEADER), 1, input);
 
     // Use check_format to ensure WAV format
-    if (!check_format(WAVHEADER header))
+    if (!check_format(header))
     {
         printf("Input is not a WAV file.\n");
     }
@@ -52,34 +52,27 @@ int main(int argc, char *argv[])
     fwrite(header, sizeof(WAVHEADER), 1, output);
 
     // Use get_block_size to calculate size of block
-    int block_size = get_block_size(WAVHEADER header);
+    int block_size = get_block_size(header);
 
     // Write reversed audio to file
     reverse_wav(input, output, block_size);
-
+    free(header);
     fclose(input);
     fclose(output);
 
 }
 
-bool check_format(WAVHEADER header)
+bool check_format(WAVHEADER *header)
 {
     // if the file is a wav file
-    return (if(header.format[0] == 'W' && header.format[1] == 'A' && header.format[2] == 'V' && header.format[3] == 'E'));
+    return (header->format[0] == 'W' && header->format[1] == 'A' && header->format[2] == 'V' && header->format[3] == 'E');
 }
 
-int get_block_size(WAVHEADER header)
+int get_block_size(WAVHEADER *header)
 {
     // number of channels multiplied by bytes per sample
-    int block_size = header.numChannels * (header.bitsPerSample/8);
+    int block_size = header->numChannels * (header->bitsPerSample/8);
     return block_size;
-}
-
-WAVHEADER read_header(FILE *input)
-{
-    WAVHEADER header = malloc(sizeof(WAVHEADER));
-    fread(header, sizeof(WAVHEADER), 1, input);
-    return header;
 }
 
 void reverse_wav(FILE *input, FILE *output, int block_size)
@@ -87,10 +80,11 @@ void reverse_wav(FILE *input, FILE *output, int block_size)
     BYTE buffer[block_size];
     // move position dicator to the end of input file
     fseek(input, 0, SEEK_END);
-    while ()
+    while (ftell(input) > HEADER_SIZE)
     {
-        fseek(fp, -1, SEEK_CUR);
-        fread(buffer, sizeof(buffer), 1, input)
+        fseek(input, -1 * block_size, SEEK_CUR);
+        fread(buffer, sizeof(buffer), 1, input);
+        fwrite(buffer, sizeof(buffer), 1, output);
     }
 
 }
