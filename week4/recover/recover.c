@@ -3,11 +3,10 @@
 #include <stdint.h>
 #include <cs50.h>
 
-typedef uint8_t BYTE;
 int BLOCK_SIZE = 512;
 
 
-bool is_jpg_sig(BYTE buffer[]);
+bool is_jpg_sig(uint8_t buffer[]);
 
 int main(int argc, char *argv[])
 {
@@ -32,7 +31,7 @@ int main(int argc, char *argv[])
     int num_jpg = 0;
     char file_name[8];
     FILE *output = NULL;
-    BYTE buffer[BLOCK_SIZE];
+    uint8_t buffer[BLOCK_SIZE];
 
     while (fread(buffer, sizeof(buffer), 1, input) == 1)
     {
@@ -60,7 +59,7 @@ int main(int argc, char *argv[])
     fclose(output);
 }
 
-bool is_jpg_sig(BYTE buffer[])
+bool is_jpg_sig(uint8_t buffer[])
 {
     return (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) && (buffer[3] >= 0xe0 && buffer[3] <= 0xef);
 }
