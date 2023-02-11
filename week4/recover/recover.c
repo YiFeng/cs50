@@ -28,12 +28,12 @@ int main(int argc, char *argv[])
     // Count how many jpg files it has
 
     // Read blocks of input
-    int num_jpg = 0;
+    int jpg_name_num = 0;
     char file_name[8];
     FILE *output = NULL;
     uint8_t buffer[BLOCK_SIZE];
 
-    while (fread(buffer, sizeof(buffer), 1, input) == 1)
+    while (fread(buffer, sizeof(buffer), 1, input) > 0)
     {
         // Check first 4 bytes in each block
         if (is_jpg_sig(buffer))
@@ -42,17 +42,16 @@ int main(int argc, char *argv[])
             {
                 fclose(output);
             }
-            sprintf(file_name, "%03d.jpg", num_jpg);
+            output = NULL;
+            // if the first 4 bytes indicates its a jpg, then create a new file
+            sprintf(file_name, "%03d.jpg", jpg_name_num);
             output = fopen(file_name, "w");
-            fwrite(buffer, sizeof(buffer), 1, output);
-            num_jpg++;
+            jpg_name_num++;
         }
-        else
+        // make sure the output file is valid
+        if (output != NULL)
         {
-            if (output != NULL)
-            {
-                fwrite(buffer, sizeof(buffer), 1, output);
-            }
+            fwrite(buffer, sizeof(buffer), 1, output);
         }
     }
     fclose(input);
@@ -61,5 +60,6 @@ int main(int argc, char *argv[])
 
 bool is_jpg_sig(uint8_t buffer[])
 {
-    return (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff) && (buffer[3] >= 0xe0 && buffer[3] <= 0xef);
+    return (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff)
+    && (buffer[3] >= 0xe0 && buffer[3] <= 0xef);
 }
