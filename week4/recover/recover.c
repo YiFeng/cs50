@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
             if (output != NULL)
             {
                 fclose(output);
+                output = NULL;
             }
-            output = NULL;
             // if the first 4 bytes indicates its a jpg, then create a new file
             sprintf(file_name, "%03d.jpg", jpg_name_num);
             output = fopen(file_name, "w");
@@ -54,12 +54,18 @@ int main(int argc, char *argv[])
             fwrite(buffer, sizeof(buffer), 1, output);
         }
     }
-    fclose(input);
-    fclose(output);
+    if (input != NULL)
+    {
+        fclose(input);
+    }
+    if (output != NULL)
+    {
+        fclose(output);
+    }
 }
 
 bool is_jpg_sig(uint8_t buffer[])
 {
-    return (buffer[0] == 0xff && buffer[1] == 0xd8 && buffer[2] == 0xff)
-    && (buffer[3] >= 0xe0 && buffer[3] <= 0xef);
+    return (buffer[0] == 0xff &&buffer[1] == 0xd8 && buffer[2] == 0xff) &&
+           (buffer[3] >= 0xe0 && buffer[3] <= 0xef);
 }
