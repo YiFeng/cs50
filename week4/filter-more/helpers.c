@@ -21,7 +21,8 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
     {
         for (int j = 0; j < width; j++)
         {
-           BYTE avg_color = (image[i][j].rgbtBlue + image[i][j].rgbtGreen + image[i][j].rgbtRed) / 3;
+           RGBTRIPLE temp_pixel = image[i][j];
+           BYTE avg_color = (temp_pixel.rgbtBlue + temp_pixel.rgbtGreen + temp_pixel.rgbtRed) / 3;
            image[i][j].rgbtBlue = avg_color;
            image[i][j].rgbtGreen = avg_color;
            image[i][j].rgbtRed = avg_color;
@@ -33,11 +34,11 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
+    RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    copy_image(height, width, image, temp);
     for (int i  = 0; i < height; i++)
     {
         // create a temporary array of RGBTRIPLE to copy each row of pixels
-        RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
-        copy_image(height, width, image, temp);
         // copy tem to image from the last element to first element
         for (int j = 0; j < width; j++)
         {
@@ -87,13 +88,13 @@ void cal_avg_color(RGBTRIPLE *avg_color, members *neighbors, int height, int wid
     {
         int height_index = neighbors->indices[i][0];
         int width_index = neighbors->indices[i][1];
-        sum_red +=image[height_index][width_index].rgbtRed;
-        sum_green +=image[height_index][width_index].rgbtGreen;
-        sum_blue +=image[height_index][width_index].rgbtBlue;
+        sum_red += round(image[height_index][width_index].rgbtRed / neighbors->num_members);
+        sum_green += round(image[height_index][width_index].rgbtGreen / neighbors->num_members);
+        sum_blue += round(image[height_index][width_index].rgbtBlue / neighbors->num_members);
     }
-    avg_color->rgbtRed = round(sum_red / neighbors->num_members);
-    avg_color->rgbtGreen = round(sum_green / neighbors->num_members);
-    avg_color->rgbtBlue = round(sum_blue / neighbors->num_members);
+    avg_color->rgbtRed = ;
+    avg_color->rgbtGreen = ;
+    avg_color->rgbtBlue = ;
 }
 
 // Blur image
