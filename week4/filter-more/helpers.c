@@ -40,7 +40,7 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
         RGBTRIPLE *temp_row = image[i];
 
         // swap each row's first few elements and last few elements
-        int swap_times = (width / 2) + 1;
+        int swap_times = (width / 2);
         for (int j = 0; j < swap_times; j++)
         {
             swap(temp_row, j, width-1-j);
