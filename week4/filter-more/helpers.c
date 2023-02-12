@@ -3,16 +3,6 @@
 #include <math.h>
 #include <stdio.h>
 
-void copy_image(int height, int width, RGBTRIPLE image[height][width], RGBTRIPLE temp[height][width])
-{
-    for (int i = 0; i < height; i++)
-    {
-        for (int j = 0; j < width; j++)
-        {
-            temp[i][j] = image[i][j];
-        }
-    }
-}
 
 // Convert image to grayscale
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
@@ -22,10 +12,12 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
         for (int j = 0; j < width; j++)
         {
            RGBTRIPLE temp_pixel = image[i][j];
-           BYTE avg_color = (temp_pixel.rgbtBlue + temp_pixel.rgbtGreen + temp_pixel.rgbtRed) / 3;
-           image[i][j].rgbtBlue = avg_color;
-           image[i][j].rgbtGreen = avg_color;
-           image[i][j].rgbtRed = avg_color;
+           int sum = temp_pixel.rgbtBlue + temp_pixel.rgbtGreen + temp_pixel.rgbtRed;
+           int avg_color = round(sum / 3.0);
+
+           image[i][j].rgbtBlue = (BYTE) avg_color;
+           image[i][j].rgbtGreen = (BYTE) avg_color;
+           image[i][j].rgbtRed = (BYTE) avg_color;
         }
     }
     return;
@@ -47,7 +39,7 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
         // create a temporary array of RGBTRIPLE to copy each row of pixels
         RGBTRIPLE *temp_row = image[i];
 
-        // copy tem to image from the last element to first element
+        // swap each row's first few elements and last few elements
         int swap_times = (width / 2) + 1;
         for (int j = 0; j < swap_times; j++)
         {
@@ -62,81 +54,163 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
 // save an array of index and array length to a struct
 typedef struct
 {
-    int indices[9][2];
-    int num_members;
+    RGBTRIPLE *pixs;
+    int len;
 }
-members;
+PixelArray;
 
-void get_neighbor(members *neighbors, int height_index, int width_index, int height, int width)
+typedef struct
 {
+    int height;
+    int width;
+}
+Coordinate;
+
+int grid_size = 9;
+
+PixelArray get_neighbor(Coordinate total_size, RGBTRIPLE image[total_size.height][total_size.width], Coordinate pix_curr)
+{
+    PixelArray neighbors;
+    neighbors.pixs = calloc(grid_size, sizeof(RGBTRIPLE));
+
     int num_members = 0;
-    for (int i = height_index -1; i < height_index +2; i++)
+    int num_pix = 0;
+    for (int i = pix_curr.height -1; i < pix_curr.height +2; i++)
     {
-        for (int j = width_index -1; j < width_index +2; j++)
+        for (int j = pix_curr.width -1; j < pix_curr.width +2; j++)
         {
-            if (i > 0 && i < height && j > 0 && j < width)
+            if (i > 0 && i < total_size.height && j > 0 && j < total_size.width)
             {
-                neighbors->indices[num_members][0] = i;
-                neighbors->indices[num_members][1] = j;
+                neighbors.pixs[num_pix] = image[i][j];
                 num_members++;
             }
+            num_pix++;
         }
     }
-    neighbors->num_members = num_members;
+    neighbors.len = num_members;
+
+    return neighbors;
+}
+
+int* sum_array_multiply(PixelArray neighbors, int kernel[])
+{
+    int *sum_colors = calloc(3, sizeof(int));
+    sum_colors[0] = 0; //Red
+    sum_colors[1] = 0; //Green
+    sum_colors[2] = 0; //Blue
+
+    for (int i = 0; i < grid_size; i++)
+    {
+        RGBTRIPLE neighbor_pix = neighbors.pixs[i];
+        int target = kernel[i];
+        sum_colors[0] += round(neighbor_pix.rgbtRed * target);
+        sum_colors[1] += round(neighbor_pix.rgbtGreen * target);
+        sum_colors[2] += round(neighbor_pix.rgbtBlue * target);
+    }
+    return sum_colors;
 }
 
 // Create a function to caculate average color for one pixel one color
-void cal_avg_color(RGBTRIPLE *avg_color, members *neighbors, int height, int width, RGBTRIPLE image[height][width])
+RGBTRIPLE cal_avg_color(PixelArray neighbors)
 {
-    BYTE sum_red = 0x00;
-    BYTE sum_green = 0x00;
-    BYTE sum_blue = 0x00;
+    RGBTRIPLE avg_color;
 
-    for (int i = 0; i < neighbors->num_members; i++)
-    {
-        int height_index = neighbors->indices[i][0];
-        int width_index = neighbors->indices[i][1];
-        sum_red += round(image[height_index][width_index].rgbtRed / neighbors->num_members);
-        sum_green += round(image[height_index][width_index].rgbtGreen / neighbors->num_members);
-        sum_blue += round(image[height_index][width_index].rgbtBlue / neighbors->num_members);
-    }
-    avg_color->rgbtRed = sum_red;
-    avg_color->rgbtGreen = sum_green;
-    avg_color->rgbtBlue = sum_blue;
+    // create an array of int, initialize acording to a pixels'weights
+    int kernel[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
+
+    int *sum_color = sum_array_multiply(neighbors, kernel);
+    BYTE avg_red = (BYTE)(sum_color[0] / neighbors.len);
+    BYTE avg_green = (BYTE)(sum_color[1] / neighbors.len);
+    BYTE avg_blue = (BYTE)(sum_color[2] / neighbors.len);
+    free(sum_color);
+
+    avg_color.rgbtRed = avg_red;
+    avg_color.rgbtGreen = avg_green;
+    avg_color.rgbtBlue = avg_blue;
+
+    return avg_color;
+}
+
+RGBTRIPLE cal_sobel_color(PixelArray neighbors)
+{
+    RGBTRIPLE sobel_color;
+    // create an array, initialize acording to a pixels'weights
+    int kernel_x[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
+    int kernel_y[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
+
+    int *gx = sum_array_multiply(neighbors, kernel_x);
+    int *gy = sum_array_multiply(neighbors, kernel_y);
+
+    BYTE sobel_red = (BYTE)(sqrt(gx[0]*gx[0] + gy[0]*gy[0]));
+    BYTE sobel_green = (BYTE)(sqrt(gx[1]*gx[1] + gy[1]*gy[1]));
+    BYTE sobel_blue = (BYTE)(sqrt(gx[2]*gx[2] + gy[2]*gy[2]));
+    free(gx);
+    free(gy);
+
+    sobel_color.rgbtRed = sobel_red;
+    sobel_color.rgbtGreen = sobel_green;
+    sobel_color.rgbtBlue = sobel_blue;
+
+    return sobel_color;
 }
 
 // Blur image
 void blur(int height, int width, RGBTRIPLE image[height][width])
 {
-    RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
-    copy_image(height, width, image, temp);
+    // info of whole image
+    Coordinate total_size;
+    total_size.height = height;
+    total_size.width = width;
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            // get each pixel's neighbors
-            members *neighbors = calloc(1, sizeof(members));
-            get_neighbor(neighbors, i, j, height, width);
+            // get each pixel's coordinate
+            Coordinate pix_curr;
+            pix_curr.height = i;
+            pix_curr.width = j;
+
+            PixelArray neighbors = get_neighbor(total_size, image, pix_curr);
 
             // caculate average colors of all neighbors
-            RGBTRIPLE *avg_color = calloc(1, sizeof(RGBTRIPLE));
-            cal_avg_color(avg_color, neighbors, height, width, image);
-            free(neighbors);
+            RGBTRIPLE avg_color = cal_avg_color(neighbors);
+            free(neighbors.pixs);
 
             // assign new color to current pixel
-            temp[i][j].rgbtRed = avg_color->rgbtRed;
-            temp[i][j].rgbtGreen = avg_color->rgbtGreen;
-            temp[i][j].rgbtBlue = avg_color->rgbtGreen;
-            free(avg_color);
+            image[i][j] = avg_color;
         }
     }
-    copy_image(height, width, temp, image);
-    free(temp);
     return;
 }
 
 // Detect edges
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
+    // info of whole image
+    Coordinate total_size;
+    total_size.height = height;
+    total_size.width = width;
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            // get each pixel's coordinate
+            Coordinate pix_curr;
+            pix_curr.height = i;
+            pix_curr.width = j;
+
+            PixelArray neighbors = get_neighbor(total_size, image, pix_curr);
+
+            // caculate average colors of all neighbors
+            RGBTRIPLE sobel_color = cal_sobel_color(neighbors);
+            free(neighbors.pixs);
+
+            // assign new color to current pixel
+            image[i][j] = sobel_color;
+        }
+    }
+
     return;
 }
