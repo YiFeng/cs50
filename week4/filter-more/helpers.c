@@ -3,6 +3,16 @@
 #include <math.h>
 #include <stdio.h>
 
+void copy_image(int height, int width, RGBTRIPLE image[height][width], RGBTRIPLE temp[height][width])
+{
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            temp[i][j] = image[i][j];
+        }
+    }
+}
 
 // Convert image to grayscale
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
@@ -79,7 +89,7 @@ PixelArray get_neighbor(Coordinate total_size, RGBTRIPLE image[total_size.height
     {
         for (int j = pix_curr.width -1; j < pix_curr.width +2; j++)
         {
-            if (i > 0 && i < total_size.height && j > 0 && j < total_size.width)
+            if (i >= 0 && i < total_size.height && j >= 0 && j < total_size.width)
             {
                 neighbors.pixs[num_pix] = image[i][j];
                 num_members++;
@@ -103,9 +113,9 @@ int* sum_array_multiply(PixelArray neighbors, int kernel[])
     {
         RGBTRIPLE neighbor_pix = neighbors.pixs[i];
         int target = kernel[i];
-        sum_colors[0] += round(neighbor_pix.rgbtRed * target);
-        sum_colors[1] += round(neighbor_pix.rgbtGreen * target);
-        sum_colors[2] += round(neighbor_pix.rgbtBlue * target);
+        sum_colors[0] += neighbor_pix.rgbtRed * target;
+        sum_colors[1] += neighbor_pix.rgbtGreen * target;
+        sum_colors[2] += neighbor_pix.rgbtBlue * target;
     }
     return sum_colors;
 }
@@ -119,14 +129,16 @@ RGBTRIPLE cal_avg_color(PixelArray neighbors)
     int kernel[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
     int *sum_color = sum_array_multiply(neighbors, kernel);
-    BYTE avg_red = (BYTE)(sum_color[0] / neighbors.len);
-    BYTE avg_green = (BYTE)(sum_color[1] / neighbors.len);
-    BYTE avg_blue = (BYTE)(sum_color[2] / neighbors.len);
+    float num_neighbors = neighbors.len;
+
+    int avg_red = round(sum_color[0] / num_neighbors);
+    int avg_green = round(sum_color[1] / num_neighbors);
+    int avg_blue = round(sum_color[2] / num_neighbors);
     free(sum_color);
 
-    avg_color.rgbtRed = avg_red;
-    avg_color.rgbtGreen = avg_green;
-    avg_color.rgbtBlue = avg_blue;
+    avg_color.rgbtRed = (BYTE) avg_red;
+    avg_color.rgbtGreen = (BYTE) avg_green;
+    avg_color.rgbtBlue = (BYTE) avg_blue;
 
     return avg_color;
 }
@@ -162,6 +174,9 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
     total_size.height = height;
     total_size.width = width;
 
+    RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    copy_image(height, width, image, temp);
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -171,7 +186,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
             pix_curr.height = i;
             pix_curr.width = j;
 
-            PixelArray neighbors = get_neighbor(total_size, image, pix_curr);
+            PixelArray neighbors = get_neighbor(total_size, temp, pix_curr);
 
             // caculate average colors of all neighbors
             RGBTRIPLE avg_color = cal_avg_color(neighbors);
@@ -181,6 +196,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
             image[i][j] = avg_color;
         }
     }
+    free(temp);
     return;
 }
 
@@ -192,6 +208,9 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
     total_size.height = height;
     total_size.width = width;
 
+    RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    copy_image(height, width, image, temp);
+
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
@@ -201,7 +220,7 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             pix_curr.height = i;
             pix_curr.width = j;
 
-            PixelArray neighbors = get_neighbor(total_size, image, pix_curr);
+            PixelArray neighbors = get_neighbor(total_size, temp, pix_curr);
 
             // caculate average colors of all neighbors
             RGBTRIPLE sobel_color = cal_sobel_color(neighbors);
@@ -211,6 +230,6 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             image[i][j] = sobel_color;
         }
     }
-
+    free(temp);
     return;
 }
