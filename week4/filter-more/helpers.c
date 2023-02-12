@@ -31,20 +31,28 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
+// swap values from an array
+void swap(RGBTRIPLE *temp_row, int index1, int index2)
+{
+    RGBTRIPLE temp_pixel = temp_row[index1];
+    temp_row[index1] = temp_row[index2];
+    temp_row[index2] = temp_pixel;
+}
+
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
-    RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
-    copy_image(height, width, image, temp);
     for (int i  = 0; i < height; i++)
     {
         // create a temporary array of RGBTRIPLE to copy each row of pixels
+        RGBTRIPLE *temp_row = image[i];
+
         // copy tem to image from the last element to first element
-        for (int j = 0; j < width; j++)
+        int swap_times = (width / 2) + 1;
+        for (int j = 0; j < swap_times; j++)
         {
-            image[i][j] = temp[i][(width-1) - j];
+            swap(temp_row, j, width-1-j);
         }
-        free(temp);
     }
     return;
 }
@@ -92,9 +100,9 @@ void cal_avg_color(RGBTRIPLE *avg_color, members *neighbors, int height, int wid
         sum_green += round(image[height_index][width_index].rgbtGreen / neighbors->num_members);
         sum_blue += round(image[height_index][width_index].rgbtBlue / neighbors->num_members);
     }
-    avg_color->rgbtRed = ;
-    avg_color->rgbtGreen = ;
-    avg_color->rgbtBlue = ;
+    avg_color->rgbtRed = sum_red;
+    avg_color->rgbtGreen = sum_green;
+    avg_color->rgbtBlue = sum_blue;
 }
 
 // Blur image
