@@ -102,9 +102,9 @@ PixelArray get_neighbor(Coordinate total_size, RGBTRIPLE image[total_size.height
     return neighbors;
 }
 
-float* sum_array_multiply(PixelArray neighbors, int kernel[])
+int* sum_array_multiply(PixelArray neighbors, int kernel[])
 {
-    float *sum_colors = calloc(3, sizeof(int));
+    int *sum_colors = calloc(3, sizeof(int));
     sum_colors[0] = 0; //Red
     sum_colors[1] = 0; //Green
     sum_colors[2] = 0; //Blue
@@ -128,7 +128,7 @@ RGBTRIPLE cal_avg_color(PixelArray neighbors)
     // create an array of int, initialize acording to a pixels'weights
     int kernel[9] = {1, 1, 1, 1, 1, 1, 1, 1, 1};
 
-    float *sum_color = sum_array_multiply(neighbors, kernel);
+    int *sum_color = sum_array_multiply(neighbors, kernel);
     float num_neighbors = neighbors.len;
 
     int avg_red = round(sum_color[0] / num_neighbors);
@@ -143,6 +143,21 @@ RGBTRIPLE cal_avg_color(PixelArray neighbors)
     return avg_color;
 }
 
+uint32_t cal_square(int a)
+{
+    uint32_t result = a*a;
+    return result;
+}
+
+int cap_255(int a)
+{
+    if (a > 255)
+    {
+        return 255;
+    }
+    return a;
+}
+
 RGBTRIPLE cal_sobel_color(PixelArray neighbors)
 {
     RGBTRIPLE sobel_color;
@@ -150,18 +165,19 @@ RGBTRIPLE cal_sobel_color(PixelArray neighbors)
     int kernel_x[9] = {-1, 0, 1, -2, 0, 2, -1, 0, 1};
     int kernel_y[9] = {-1, -2, -1, 0, 0, 0, 1, 2, 1};
 
-    float *gx = sum_array_multiply(neighbors, kernel_x);
-    float *gy = sum_array_multiply(neighbors, kernel_y);
+    int *gx = sum_array_multiply(neighbors, kernel_x);
+    int *gy = sum_array_multiply(neighbors, kernel_y);
 
-    int sobel_red = round(sqrt(gx[0]*gx[0] + gy[0]*gy[0]));
-    int sobel_green = round(sqrt(gx[1]*gx[1] + gy[1]*gy[1]));
-    int sobel_blue = round(sqrt(gx[2]*gx[2] + gy[2]*gy[2]));
+    int sobel_red = round(sqrt(cal_square(gx[0]) + cal_square(gy[0])));
+    int sobel_green = round(sqrt(cal_square(gx[1]) + cal_square(gy[1])));
+    int sobel_blue = round(sqrt(cal_square(gx[2]) + cal_square(gy[2])));
+
     free(gx);
     free(gy);
 
-    sobel_color.rgbtRed = (BYTE) sobel_red;
-    sobel_color.rgbtGreen = (BYTE) sobel_green;
-    sobel_color.rgbtBlue = (BYTE) sobel_blue;
+    sobel_color.rgbtRed = cap_255(sobel_red);
+    sobel_color.rgbtGreen = cap_255(sobel_green);
+    sobel_color.rgbtBlue = cap_255(sobel_blue);
 
     return sobel_color;
 }
