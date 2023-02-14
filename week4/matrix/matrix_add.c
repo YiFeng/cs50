@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
     // Check for invalid command line arguments
     if (argc != 3)
     {
-        printf("Usage: Vector length \n");
+        printf("Usage: matrix row and col \n");
         return 1;
     }
 
@@ -124,7 +124,7 @@ int main(int argc, char *argv[])
    int col = atoi(argv[2]);
    if (row == 0 || col == 0)
    {
-        printf("Please enter valid number of vector length \n");
+        printf("Please enter valid number of matrix row and col \n");
         return 1;
    }
 
