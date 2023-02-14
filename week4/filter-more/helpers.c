@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdio.h>
 
+const int GRID_SIZE = 9;
+
 void copy_image(int height, int width, RGBTRIPLE image[height][width], RGBTRIPLE temp[height][width])
 {
     for (int i = 0; i < height; i++)
@@ -81,7 +83,7 @@ int grid_size = 9;
 PixelArray get_neighbor(Coordinate total_size, RGBTRIPLE image[total_size.height][total_size.width], Coordinate pix_curr)
 {
     PixelArray neighbors;
-    neighbors.pixs = calloc(grid_size, sizeof(RGBTRIPLE));
+    neighbors.pixs = calloc(GRID_SIZE, sizeof(RGBTRIPLE));
 
     int num_members = 0;
     int num_pix = 0;
@@ -109,7 +111,7 @@ int* sum_array_multiply(PixelArray neighbors, int kernel[])
     sum_colors[1] = 0; //Green
     sum_colors[2] = 0; //Blue
 
-    for (int i = 0; i < grid_size; i++)
+    for (int i = 0; i < GRID_SIZE; i++)
     {
         RGBTRIPLE neighbor_pix = neighbors.pixs[i];
         int target = kernel[i];
@@ -186,9 +188,10 @@ RGBTRIPLE cal_sobel_color(PixelArray neighbors)
 void blur(int height, int width, RGBTRIPLE image[height][width])
 {
     // info of whole image
-    Coordinate total_size;
-    total_size.height = height;
-    total_size.width = width;
+    Coordinate total_size = {
+        .height = height,
+        .width = width,
+    };
 
     RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
     copy_image(height, width, image, temp);
@@ -198,9 +201,10 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
         for (int j = 0; j < width; j++)
         {
             // get each pixel's coordinate
-            Coordinate pix_curr;
-            pix_curr.height = i;
-            pix_curr.width = j;
+            Coordinate pix_curr = {
+                .height = i,
+                .width = j,
+            };
 
             PixelArray neighbors = get_neighbor(total_size, temp, pix_curr);
 
@@ -220,21 +224,25 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
     // info of whole image
-    Coordinate total_size;
-    total_size.height = height;
-    total_size.width = width;
+
 
     RGBTRIPLE(*temp)[width] = calloc(height, width * sizeof(RGBTRIPLE));
     copy_image(height, width, image, temp);
+
+    Coordinate total_size = {
+        .height = height,
+        .width = width,
+    };
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
             // get each pixel's coordinate
-            Coordinate pix_curr;
-            pix_curr.height = i;
-            pix_curr.width = j;
+            Coordinate pix_curr = {
+                .height = i,
+                .width = j,
+            };
 
             PixelArray neighbors = get_neighbor(total_size, temp, pix_curr);
 
