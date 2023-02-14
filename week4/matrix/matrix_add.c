@@ -45,7 +45,7 @@ Matrix2 fill_matrix2(int row, int col)
     Matrix2 m2;
     m2.row = row;
     m2.col = col;
-    m2.data = calloc(1, (row * col) * sizeof(int));
+    m2.data = calloc(row * col, sizeof(int));
 
     int fill_num = row * col;
     for (int i = 0; i < row; i++)
@@ -108,6 +108,15 @@ void print_matrix2(Matrix2 m2)
         }
         printf("\n");
     }
+}
+
+void free_matrix(Matrix1 m)
+{
+    for (int i = 0; i < m.row; i++)
+    {
+        free(m.data[i]);
+    }
+    free(m.data);
 }
 
 int main(int argc, char *argv[])
