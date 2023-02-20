@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     }
 
     // Add words to the trie
-    while (fscanf(infile, "%s", name) == 1) 
+    while (fscanf(infile, "%s", name) == 1)
     {
         node *cursor = root;
 
@@ -110,6 +110,24 @@ int main(int argc, char *argv[])
 // TODO: Complete the check function, return true if found, false if not found
 bool check(char* word)
 {
+    int len = strlen(word);
+    node *cursor = root;
+    for (int i = 0; i < len - 1; i++)
+    {
+        int index = tolower(word[i]) - 'a';
+        if(cursor->children[index] == NULL)
+        {
+            return false;
+        }
+        else
+        {
+            cursor = cursor->children[index];
+        }
+    }
+    if (cursor->is_word == true)
+    {
+        return true;
+    }
     return false;
 }
 
@@ -125,7 +143,7 @@ bool unload(void)
 
 void unloader(node* current)
 {
-    
+
     // Iterate over all the children to see if they point to anything and go
     // there if they do point
     for (int i = 0; i < SIZE_OF_ALPHABET; i++)
