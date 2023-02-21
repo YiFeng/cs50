@@ -108,23 +108,25 @@ int main(int argc, char *argv[])
 }
 
 // TODO: Complete the check function, return true if found, false if not found
+bool check_node(node *cursor, int p, char *word)
+{
+    if (p == strlen(word))
+    {
+        return cursor->is_word;
+    }
+   int index = tolower(word[p]) - 'a';
+
+   if (cursor->children[index] == NULL)
+   {
+        return false;
+   }
+   return check_node(cursor->children[index], p+1, word);
+}
+
 bool check(char* word)
 {
-    int len = strlen(word);
     node *cursor = root;
-    for (int i = 0; i < len; i++)
-    {
-        int index = tolower(word[i]) - 'a';
-        if(cursor->children[index] == NULL)
-        {
-            return false;
-        }
-        else
-        {
-            cursor = cursor->children[index];
-        }
-    }
-    return cursor->is_word;
+    return check_node(cursor, 0, word);
 }
 
 // Unload trie from memory
