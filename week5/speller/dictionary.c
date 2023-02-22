@@ -3,6 +3,9 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <strings.h>
 
 #include "dictionary.h"
 
@@ -18,13 +21,30 @@ node;
 const unsigned int N = 26 * 2;
 
 // Hash table
-node *table[N];
+typedef struct HashTable
+{
+    node *table[N];
+    int size;
+}
+HashTable;
+
+HashTable *table;
 
 // Returns true if word is in dictionary, else false
 bool check(const char *word)
 {
     // TODO
-    return false;
+    int index = hash(word);
+    node *curr_node = table->table[index];
+    while (curr_node->next != NULL)
+    {
+        if(strcasecmp(curr_node->word, word) == 0)
+        {
+            return true;
+        }
+        curr_node = curr_node->next;
+    }
+    return strcasecmp(curr_node->word, word) == 0;
 }
 
 // Hashes word to a number
@@ -53,13 +73,13 @@ bool save_to_hash(char *buffer)
     {
         return false;
     }
-    vocable->word = buffer;
+    strcpy(vocable->word, buffer);
     vocable->next = NULL;
 
     // get word's position in hash table
-    int index = hash(buffer);
-    vocable->next = table[index];
-    table[index] = vocable;
+    unsigned int index = hash(buffer);
+    vocable->next = table->table[index];
+    table->table[index] = vocable;
     return true;
 }
 
@@ -73,13 +93,19 @@ bool load(const char *dictionary)
         printf("Could not open %s.\n", dictionary);
         return false;
     }
-    // read word from dictionary
-    char *buffer[LENGTH + 1];
+    // read word from dictionary and save to hashtable
+    table = malloc(sizeof(HashTable));
+    table->size = 0;
+    char buffer[LENGTH + 1];
     while (fgets(buffer, LENGTH+1, file))
     {
         if(!save_to_hash(buffer))
         {
             return false;
+        }
+        else
+        {
+            table->size++;
         }
     }
     return true;
@@ -88,18 +114,30 @@ bool load(const char *dictionary)
 // Returns number of words in dictionary if loaded, else 0 if not yet loaded
 unsigned int size(void)
 {
-    // TODO
-    for (int i = 0; i < N; i++)
-    {
-        table[i]
-    }
-
-    return 0;
+    return table->size;
 }
 
 // Unloads dictionary from memory, returning true if successful, else false
 bool unload(void)
 {
     // TODO
+    // free elements of hash array
+    for (int i = 0; i < N; i++)
+    {
+        node *curr_node = table->table[i];
+        if (curr_node == NULL)
+        {
+            continue;
+        }
+        while (curr_node->next != NULL)
+        {
+            node *next_node = curr_node->next;
+            free(curr_node);
+            curr_node = next_node;
+        }
+        free(curr_node);
+    }
+    // free the table
+    free(table);
     return false;
 }
