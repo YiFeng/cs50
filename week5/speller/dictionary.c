@@ -36,7 +36,7 @@ bool check(const char *word)
     // TODO
     int index = hash(word);
     node *curr_node = table->table[index];
-    while (curr_node->next != NULL)
+    while (curr_node != NULL)
     {
         if(strcasecmp(curr_node->word, word) == 0)
         {
@@ -44,7 +44,7 @@ bool check(const char *word)
         }
         curr_node = curr_node->next;
     }
-    return strcasecmp(curr_node->word, word) == 0;
+    return false;
 }
 
 // Hashes word to a number
@@ -95,7 +95,12 @@ bool load(const char *dictionary)
     }
     // read word from dictionary and save to hashtable
     table = malloc(sizeof(HashTable));
+    if (table == NULL)
+    {
+        return false;
+    }
     table->size = 0;
+
     char buffer[LENGTH + 1];
     while (fgets(buffer, LENGTH+1, file))
     {
@@ -122,6 +127,10 @@ bool unload(void)
 {
     // TODO
     // free elements of hash array
+    if (table == NULL)
+    {
+        return false;
+    }
     for (int i = 0; i < N; i++)
     {
         node *curr_node = table->table[i];
@@ -129,15 +138,14 @@ bool unload(void)
         {
             continue;
         }
-        while (curr_node->next != NULL)
+        while (curr_node != NULL)
         {
             node *next_node = curr_node->next;
             free(curr_node);
             curr_node = next_node;
         }
-        free(curr_node);
     }
     // free the table
     free(table);
-    return false;
+    return true;
 }
