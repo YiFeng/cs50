@@ -101,8 +101,8 @@ bool load(const char *dictionary)
     }
     table->size = 0;
 
-    char buffer[LENGTH + 1];
-    while (fgets(buffer, LENGTH+1, file))
+    char buffer[LENGTH + 2];
+    while (fgets(buffer, LENGTH+2, file))
     {
         if(!save_to_hash(buffer))
         {
