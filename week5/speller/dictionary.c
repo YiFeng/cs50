@@ -61,7 +61,6 @@ bool save_to_hash(char *buffer)
     }
     strcpy(vocable->word, buffer);
     vocable->next = NULL;
-
     // get word's position in hash table
     unsigned int index = hash(buffer);
     if (index < 0 || index >= BUCKET_SIZE) return false;
@@ -81,13 +80,14 @@ bool load(const char *dictionary)
     }
 
     // read word from dictionary and save to hashtable
-    char buffer[LENGTH + 2];
-    while (fgets(buffer, LENGTH + 2, file)) {
+    char buffer[LENGTH + 1];
+    while (fscanf(file, "%s", buffer) != EOF) {
         if(!save_to_hash(buffer)) {
             return false;
         }
         table.size++;
     }
+    fclose(file);
     return true;
 }
 
