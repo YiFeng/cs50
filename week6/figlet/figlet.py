@@ -1,38 +1,31 @@
 import pyfiglet
 import sys
-from sys import argv
 import random
 
-n = len(argv) - 1
-# Get a list of all available fonts
-fonts = pyfiglet.FigletFont.getFonts()
 valid_inputs = ['-f', '--font']
 
-def is_valid_argum(argv):
-    if argv[1] in valid_inputs and argv[2] in fonts:
-        return True
+def is_valid_arg(argv, available_fonts):
+    return argv[1] in valid_inputs and argv[2] in available_fonts
+
+def print_message(message: str, font: str):
+    fig = pyfiglet.Figlet(font=font)
+    print(fig.renderText(message))
+
+def main():
+    n = len(sys.argv) - 1
+    available_fonts = pyfiglet.FigletFont.getFonts()
+    if n == 2 and is_valid_arg(sys.argv, available_fonts):
+        font = sys.argv[2]
+    elif n == 0:
+        # Choose a random font
+        font = random.choice(available_fonts)
     else:
         print("Invalid usage")
         sys.exit(1)
 
-if n == 0:
-    # Get a list of all available fonts
-    fonts = pyfiglet.FigletFont.getFonts()
-    # Choose a random font
-    font = random.choice(fonts)
-    # Create a Figlet object with the chosen font
-    fig = pyfiglet.Figlet(font=font)
-elif n == 2:
-    if is_valid_argum(argv):
-        fig = pyfiglet.Figlet(font=argv[2])
-else:
-    print("Invalid usage")
-    sys.exit(1)
+    #get user input
+    text = input("Please input a text: ")
+    print_message(text, font)
 
-#get user input
-text = input("Please input a text: ")
-
-print(fig.renderText(text))
-
-
-
+if __name__ == "__main__":
+    main()
