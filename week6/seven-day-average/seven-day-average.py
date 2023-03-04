@@ -60,15 +60,15 @@ def comparative_averages(new_cases, states):
 
         try:
             change = (this_week - last_week)/last_week * 100
+            prefix = f"{state} had a 7-day average of {this_week:.0f} and"
             if change > 0:
-                print(f"{state} had a 7-day average of {this_week:.0f} and an increase of {change:.0f}%")
+                print(f"{prefix} an increase of {change:.0f}%")
             elif change < 0:
-                print(f"{state} had a 7-day average of {this_week:.0f} and an decrease of {-change:.0f}%")
+                print(f"{prefix} an decrease of {-change:.0f}%")
             else:
-                print(f"{state} had a 7-day average of {this_week:.0f} and same as last week")
+                print(f"{prefix} same as last week")
         except ZeroDivisionError:
             print("last week has 0 cases")
 
-
-
-main()
+if __name__ == "__main__":
+    main()
