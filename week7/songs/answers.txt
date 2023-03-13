@@ -1,0 +1,2 @@
+1. I will calculate the average energy, valence, and danceability of their 100 songs and calculate a composite average score respresents their audio aura
+2. The 100 top songa may contain songs that listner heared several times that dorminant the avegrage value.
