@@ -38,7 +38,7 @@ WHERE id in(
     SELECT id FROM people
     WHERE license_plate in (
         SELECT license_plate FROM bakery_security_logs
-        WHERE year = 2021 AND month = 7 AND day = 28 AND hour = 10 AND minute <=30 OR minute > 15
+        WHERE year = 2021 AND month = 7 AND day = 28 AND hour = 10 AND minute <=25 OR minute >= 15
     )
 );
 
@@ -60,7 +60,7 @@ WHERE phone_number in (
         SELECT id FROM people
         WHERE license_plate in (
             SELECT license_plate FROM bakery_security_logs
-            WHERE year = 2021 AND month = 7 AND day = 28 AND hour = 10 AND minute <=30 OR minute > 15
+            WHERE year = 2021 AND month = 7 AND day = 28 AND hour = 10 AND minute <=25 OR minute >= 15
         )
     )
 ) AND phone_number in (
@@ -90,4 +90,18 @@ WHERE phone_number in (
 );
 -- find the thief
 SELECT *
-FROM suspicious_person sp
+FROM suspicious_person
+WHERE phone_number in (
+    SELECT caller FROM phone_calls
+    WHERE receiver = (
+        SELECT phone_number FROM suspicious_accomplice
+        WHERE passport_number in (
+            SELECT passport_number FROM passengers
+            WHERE  flight_id = 36)));
+-- find the accomplice
+SELECT * FROM suspicious_accomplice
+WHERE passport_number in (
+    SELECT passport_number FROM passengers
+    WHERE  flight_id = 36);
+-- The destination
+SELECT city FROM airports WHERE id = (SELECT destination_airport_id FROM flights WHERE id = 36);
