@@ -1,0 +1,35 @@
+.sidebar {
+  position: fixed;
+  width: 200px;
+  height: 100%;
+  background-color: #f5f5f5;
+  padding-top: 20px;
+  float: left;
+  border-right: 1px solid #ddd; /* Add a border to the right side */
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd; /* Add a border to the top of the footer */
+  text-align: center;
+  font-size: 12px; /* Set the font size smaller */
+}
+.nav-sidebar > li > a {
+  color: #eb8334;
+  padding: 30px 5px;
+  display: block;
+  border-bottom: 1px solid #ddd; /* Add a border to the bottom of each item */
+  transition: all 0.3s; /* Add a transition effect on hover */
+}
+.nav-sidebar > li > a:hover {
+  background-color: #eee; /* Change the background color on hover */
+  color: #337ab7; /* Change the text color on hover */
+}
+.nav-sidebar > li.active > a {
+  color: #fff;
+  background-color: #337ab7;
+}
