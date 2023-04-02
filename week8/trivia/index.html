@@ -17,10 +17,10 @@
                 <h2>Part 1: Multiple choice</h2>
                 <hr>
                 <h3>What is the best Switch Game you ever played?</h3>
-                <button onclick="choiceAnswer(this)" value="correct">Zelda</button>
-                <button onclick="choiceAnswer(this)" value="incorrect">Pokemon</button>
-                <button onclick="choiceAnswer(this)" value="incorrect">Mario</button>
-                <button onclick="choiceAnswer(this)" value="incorrect">Just dance</button>
+                <button value="Zelda">Zelda</button>
+                <button value="Pokemon">Pokemon</button>
+                <button value="Mario">Mario</button>
+                <button value="Just dance">Just dance</button>
                 <div id="result_choice"></div>
             </div>
 
@@ -28,8 +28,8 @@
                 <h2>Part 2: Free Response</h2>
                 <hr>
                 <h3>In which game you don't want to save the princess?</h3>
-                <input autocomplete="off" autofocus name="q" type="text">
-                <button onclick="inputAnswer()">Check Answer</button>
+                <input autocomplete="off" autofocus type="text">
+                <button onclick="inputAnswer()" id="text_check">Check Answer</button>
                 <div id="result_input"></div>
             </div>
         </div>
