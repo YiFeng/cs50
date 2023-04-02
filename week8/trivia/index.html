@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+        <title>Trivia!</title>
+        <script>
+            function choiceAnswer(button) {
+                if (button.value == 'correct'){
+                    button.style.backgroundColor='green';
+                    document.querySelector('#result_choice').textContent='Correct!';
+                }
+                else{
+                    button.style.backgroundColor='red';
+                    document.querySelector('#result_choice').textContent='InCorrect!';
+                }
+                document.querySelectorAll('button').forEach(function(btn) {
+                btn.disabled = true;});
+            }
+
+            function inputAnswer(){
+                var inputtext = document.querySelector('input').value
+                if (inputtext.toLowerCase() == 'zelda'){
+                    document.querySelector('#result_input').textContent='Correct!'
+                    document.querySelector('#result_input').style.color='green' 
+                }
+                else{
+                    document.querySelector('#result_input').textContent='InCorrect!'
+                    document.querySelector('#result_input').style.color='red'
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <h1>Trivia!</h1>
+        </div>
+
+        <div class="container">
+            <div class="section">
+                <h2>Part 1: Multiple choice</h2>
+                <hr>
+                <h3>What is the best Switch Game you ever played?</h3>
+                <button onclick="choiceAnswer(this)" value="correct">Zelda</button>
+                <button onclick="choiceAnswer(this)" value="incorrect">Pokemon</button>
+                <button onclick="choiceAnswer(this)" value="incorrect">Mario</button>
+                <button onclick="choiceAnswer(this)" value="incorrect">Just dance</button>
+                <div id="result_choice"></div>
+            </div>
+
+            <div class="section">
+                <h2>Part 2: Free Response</h2>
+                <hr>
+                <h3>In which game you don't want to save the princess?</h3>
+                <input autocomplete="off" autofocus name="q" type="text">
+                <button onclick="inputAnswer()">Check Answer</button>
+                <div id="result_input"></div>
+            </div>
+        </div>
+    </body>
+</html>
